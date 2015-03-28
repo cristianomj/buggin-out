@@ -249,6 +249,7 @@ void BugginOutDataLoader::loadWorld(Game *game, wstring levelInitFile)
 	//	makeRandomJumpingBot(game, botSpriteType, botX, botY);
 	//}
 
+
 	makeRandomJumpingBot(game, blueBot, 500, 400);
 	makeRandomJumpingBot(game, blueBot, 300, 400);
 
