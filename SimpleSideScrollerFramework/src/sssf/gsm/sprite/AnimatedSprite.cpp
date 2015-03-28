@@ -12,6 +12,7 @@
 #include "sssf\gsm\physics\PhysicalProperties.h"
 #include "sssf\gsm\sprite\AnimatedSprite.h"
 #include "sssf\gsm\sprite\AnimatedSpriteType.h"
+#include <cmath>
 
 /*
 	AnimatedSprite - Default constructor, just sets everything to 0.
@@ -21,6 +22,9 @@ AnimatedSprite::AnimatedSprite()
 	spriteType = 0;
 	frameIndex = 0;
 	animationCounter = 0;
+	jumping = false;
+	health = 12;
+	clock = 0;
 	pp.setVelocity(0.0f, 0.0f);
 	pp.setAccelerationX(0.0f);
 	pp.setAccelerationY(0.0f);
@@ -92,6 +96,14 @@ void AnimatedSprite::updateSprite()
 {
 	unsigned int duration = spriteType->getDuration(currentState, frameIndex);
 	animationCounter++;
+	clock++;
+	if (clock == 302) clock = 0;
+	if (health < 12) {
+		if (clock % health == 0) setAlpha(155);
+		else setAlpha(255);
+	}
+	else
+		setAlpha(255);
 
 	// WE ONLY CHANGE THE ANIMATION FRAME INDEX WHEN THE
 	// ANIMATION COUNTER HAS REACHED THE DURATION
@@ -112,4 +124,22 @@ void AnimatedSprite::correctToTightBoundingVolume()
 {
 	pp.setX(boundingVolume.getLeft());
 	pp.setY(boundingVolume.getTop());
+}
+
+void AnimatedSprite::processDamage()
+{
+	if (health == 2)
+	{
+		// TODO: PLAYER DEAD
+	}
+	else
+	{
+		health --;
+	}
+}
+
+void AnimatedSprite::processHelp()
+{
+	if (health != 12)
+		health++;
 }

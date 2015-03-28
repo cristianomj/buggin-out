@@ -138,6 +138,7 @@ void SpriteManager::unloadSprites()
 
 Bot* SpriteManager::removeBot(Bot *botToRemove)
 {
+	bots.remove(botToRemove);
 	return NULL;
 	// @TODO - WE'LL DO THIS LATER WHEN WE LEARN MORE ABOUT MEMORY MANAGEMENT
 }
@@ -152,6 +153,25 @@ void SpriteManager::update(Game *game)
 	// UPDATE THE PLAYER SPRITE
 	player.updateSprite();
 
+	int clock = player.getClock();
+	if (clock == 300)
+	{
+		GameDataLoader *dl = game->getDataLoader();
+		dl->spawnBots(game, rand() % 2);
+	}
+
+	// MODIFIED: MOVE VIEWPORT
+	Viewport *viewport = game->getGUI()->getViewport();
+	viewport->moveViewport(player.getPhysicalProperties()->getVelocityX() * .8,
+		player.getPhysicalProperties()->getVelocityY() * .8,
+		game->getGSM()->getWorld()->getWorldWidth(), 
+		game->getGSM()->getWorld()->getWorldHeight());
+
+	if (isLevelCleared(game))
+	{
+		game->getGSM()->loadNextLevel(game);
+	}
+
 	// NOW UPDATE THE REST OF THE SPRITES
 	list<Bot*>::iterator botIterator;
 	botIterator = bots.begin();
@@ -162,4 +182,23 @@ void SpriteManager::update(Game *game)
 		bot->updateSprite();
 		botIterator++;
 	}
+}
+
+bool SpriteManager::isLevelCleared(Game *game)
+{
+	AABB *playerVol = player.getBoundingVolume();
+
+	World *world = game->getGSM()->getWorld();
+	AABB *worldVol = new AABB();
+	int width = world->getWorldWidth();
+	int height = world->getWorldHeight();
+	worldVol->setWidth(width);
+	worldVol->setHeight(height);
+	worldVol->setCenterX(width / 2);
+	worldVol->setCenterY(height / 2);
+
+	if (!(playerVol->overlaps(worldVol)))
+		return true;
+
+	return false;
 }

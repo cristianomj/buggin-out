@@ -13,6 +13,7 @@
 #include "sssf\gsm\sprite\AnimatedSpriteType.h"
 #include "sssf\gsm\physics\Collision.h"
 #include "sssf\gsm\physics\CollidableObject.h"
+#include "sssf\gsm\ai\bots\RandomJumpingBot.h"
 #include "sssf\game\Game.h"
 #include "sssf\gsm\physics\Physics.h"
 #include "sssf\gsm\world\SparseLayer.h"
@@ -238,6 +239,60 @@ void Physics::update(Game *game)
 	updateSweptShapeIndices();
 
 	// YOU'LL NEED TO TEST FOR SPRITE-TO-SPRITE COLLISIONS HERE
+	AnimatedSprite *player = game->getGSM()->getSpriteManager()->getPlayer();
+	AABB *playerSS = player->getSweptShape();
+
+	list<Bot*>::iterator botIterator = game->getGSM()->getSpriteManager()->getBotsIterator();
+	list<Bot*>::iterator botsEnd = game->getGSM()->getSpriteManager()->getEndOfBotsIterator();
+	while (botIterator != botsEnd)
+	{
+		Bot *bot = (*botIterator);
+		AABB *botSS = bot->getSweptShape();
+
+		if (playerSS->overlaps(botSS))
+		{
+			PhysicalProperties *ppp = player->getPhysicalProperties();
+			PhysicalProperties *bpp = bot->getPhysicalProperties();
+
+			if (bot->getBoundingVolume()->getBottom() <= player->getBoundingVolume()->getTop())
+			{
+				if (bot->getSpriteType()->getSpriteTypeID() == 1)
+				{
+					bpp->setVelocity(bpp->getVelocityX() * -1, bpp->getVelocityY() * -1);
+					player->processDamage();
+				}
+				else
+				{
+					bpp->setVelocity(bpp->getVelocityX() * -1, bpp->getVelocityY() * -1);
+					player->processHelp();
+				}
+			}
+			else if (bot->getBoundingVolume()->getTop() >= player->getBoundingVolume()->getBottom())
+			{
+				if (bot->getSpriteType()->getSpriteTypeID() == 1)
+				{
+					toRemove.push_back(bot);
+				}
+				ppp->setVelocity(ppp->getVelocityX() * -1, ppp->getVelocityY() * -1);
+			}
+			else
+			{
+				bpp->setVelocity(bpp->getVelocityX() * -1, bpp->getVelocityY() * -1);
+			}
+		}
+
+		botIterator++;
+	}
+
+	list<Bot*>::iterator it;
+	it = toRemove.begin();
+	while (it != toRemove.end())
+	{
+		Bot *bot = (*it);
+		game->getGSM()->getSpriteManager()->removeBot(bot);
+		it++;
+	}
+	toRemove.clear();
 
 	// *** LOOP STARTS HERE. WE'LL DO THIS UNTIL THERE ARE NO
 	// MORE COLLISIONS TO RESOLVE FOR THIS FRAME
@@ -709,7 +764,6 @@ void Physics::performCollisionResponse(Collision *collision)
 	}
 
 	// YOU'LL NEED TO HANDLE SPRITE-TO-SPRITE COLLISIONS
-
 
 	// MAKE SURE SPRITES ON TILES REMAIN ON TILES
 	if (co1->isOnTileThisFrame())

@@ -105,7 +105,11 @@ void BugginOutDataLoader::loadGame(Game *game, wstring gameInitFile)
 	text->setTextGenerator((TextGenerator*)bugginOutTextGenerator);
 
 	// INIT THE VIEWPORT TOO
-	initViewport(game->getGUI(), properties);	
+	initViewport(game->getGUI(), properties);
+
+	// MODIFIED: ADD LEVELS
+	game->getGSM()->addLevel(W_LEVEL_1_NAME, W_LEVEL_1_PATH);
+	game->getGSM()->addLevel(W_LEVEL_2_NAME, W_LEVEL_2_PATH);
 
 	// WE DON'T NEED THE PROPERTIES MAP ANYMORE, THE GAME IS ALL LOADED
 	delete properties;
@@ -155,6 +159,39 @@ void BugginOutDataLoader::loadGUI(Game *game, wstring guiInitFile)
 	hardCodedLoadGUIExample(game);
 }
 
+void BugginOutDataLoader::loadNextLevel(Game *game, wstring nextLevel)
+{
+	// LOAD THE LEVEL'S BACKGROUND TILES
+	TMXMapImporter tmxMapImporter;
+
+	tmxMapImporter.loadWorld(game, W_LEVEL_1_DIR, W_LEVEL_1_NAME);
+
+	// LOAD THE LEVEL'S SPRITE IMAGES
+	PoseurSpriteTypesImporter psti;
+	psti.loadSpriteTypes(game, SPRITE_TYPES_LIST);
+
+	// LET'S MAKE A PLAYER SPRITE
+	// @TODO - IT WOULD BE BETTER TO LOAD THIS STUFF FROM A FILE
+	GameStateManager *gsm = game->getGSM();
+	Physics *physics = gsm->getPhysics();
+	physics->setGravity(W_GRAVITY);
+	SpriteManager *spriteManager = gsm->getSpriteManager();
+	AnimatedSprite *player = spriteManager->getPlayer();
+
+	player->setCurrentState(IDLE);
+	PhysicalProperties *playerProps = player->getPhysicalProperties();
+	playerProps->setX(PLAYER_INIT_X);
+	playerProps->setY(PLAYER_INIT_Y);
+	playerProps->setVelocity(0.0f, 0.0f);
+	playerProps->setAccelerationX(0);
+	playerProps->setAccelerationY(0);
+	player->setOnTileThisFrame(false);
+	player->setOnTileLastFrame(false);
+
+	player->getBoundingVolume()->setCenterX(PLAYER_INIT_X + 32);
+	player->getBoundingVolume()->setCenterY(PLAYER_INIT_Y + 32);
+}
+
 /*
 	loadLevel - This method should load the data the level described by the
 	levelInitFile argument in to the Game's game state manager.
@@ -163,7 +200,8 @@ void BugginOutDataLoader::loadWorld(Game *game, wstring levelInitFile)
 {
 	// LOAD THE LEVEL'S BACKGROUND TILES
 	TMXMapImporter tmxMapImporter;
-	tmxMapImporter.loadWorld(game, W_LEVEL_1_DIR, W_LEVEL_1_NAME);
+
+	tmxMapImporter.loadWorld(game, W_LEVEL_2_DIR, W_LEVEL_2_NAME);
 
 	// LOAD THE LEVEL'S SPRITE IMAGES
 	PoseurSpriteTypesImporter psti;
@@ -187,42 +225,56 @@ void BugginOutDataLoader::loadWorld(Game *game, wstring levelInitFile)
 	playerProps->setX(PLAYER_INIT_X);
 	playerProps->setY(PLAYER_INIT_Y);
 	playerProps->setVelocity(0.0f, 0.0f);
-	playerProps->setAccelerationX(0);
-	playerProps->setAccelerationY(0);
+	playerProps->setAccelerationX(0.0f);
+	playerProps->setAccelerationY(0.0f);
 	player->setOnTileThisFrame(false);
 	player->setOnTileLastFrame(false);
 	player->affixTightAABBBoundingVolume();
+	AABB *playerBV = player->getBoundingVolume();
+	playerBV->setCenterX(PLAYER_INIT_X + 32);
+	playerBV->setCenterY(PLAYER_INIT_Y + 32);
 
 	AnimatedSpriteType *botSpriteType = spriteManager->getSpriteType(1);
+	AnimatedSpriteType *blueBot = spriteManager->getSpriteType(0);
+	AnimatedSpriteType *yellowBot = spriteManager->getSpriteType(3);
 	// AND LET'S ADD A BUNCH OF RANDOM JUMPING BOTS, FIRST ALONG
 	// A LINE NEAR THE TOP
 
 // UNCOMMENT THE FOLLOWING CODE BLOCK WHEN YOU ARE READY TO ADD SOME BOTS
 
-	for (int i = 2; i <= 26; i++)
-	{
-		float botX = 400.0f + (i * 100.0f);
-		float botY = 100.0f;
-		makeRandomJumpingBot(game, botSpriteType, botX, botY);
-	}
+	//for (int i = 2; i <= 26; i++)
+	//{
+	//	float botX = 400.0f + (i * 100.0f);
+	//	float botY = 100.0f;
+	//	makeRandomJumpingBot(game, botSpriteType, botX, botY);
+	//}
 
-	// AND THEN STRATEGICALLY PLACED AROUND THE LEVEL
-	makeRandomJumpingBot(game, botSpriteType, 400, 100);
-	makeRandomJumpingBot(game, botSpriteType, 200, 400);
+	makeRandomJumpingBot(game, blueBot, 500, 400);
+	makeRandomJumpingBot(game, blueBot, 300, 400);
+
 	makeRandomJumpingBot(game, botSpriteType, 400, 400);
-	makeRandomJumpingBot(game, botSpriteType, 800, 700);
-	makeRandomJumpingBot(game, botSpriteType, 900, 700);
-	makeRandomJumpingBot(game, botSpriteType, 1000, 700);
-	makeRandomJumpingBot(game, botSpriteType, 100, 1000);
-	makeRandomJumpingBot(game, botSpriteType, 300, 1000);	
-	makeRandomJumpingBot(game, botSpriteType, 500, 1000);
-	makeRandomJumpingBot(game, botSpriteType, 100, 1400);
-	makeRandomJumpingBot(game, botSpriteType, 400, 1400);	
-	makeRandomJumpingBot(game, botSpriteType, 700, 1400);
+	makeRandomJumpingBot(game, botSpriteType, 1024, 1600);
+	makeRandomJumpingBot(game, botSpriteType, 2432, 1600 - 64);
+	makeRandomJumpingBot(game, botSpriteType, 2176, 256 - 64);
+	makeRandomJumpingBot(game, botSpriteType, 1664, 832 - 64);
 
-	// AND THEN A BUNCH LINED UP NEAR THE LEVEL EXIT
-	for (int i = 0; i < 14; i++)
-		makeRandomJumpingBot(game, botSpriteType, 1700.0f + (i*100.0f), 1300.0f);
+	//// AND THEN STRATEGICALLY PLACED AROUND THE LEVEL
+	//makeRandomJumpingBot(game, botSpriteType, 400, 100);
+	//makeRandomJumpingBot(game, botSpriteType, 200, 400);
+	//makeRandomJumpingBot(game, botSpriteType, 400, 400);
+	//makeRandomJumpingBot(game, botSpriteType, 800, 700);
+	//makeRandomJumpingBot(game, botSpriteType, 900, 700);
+	//makeRandomJumpingBot(game, botSpriteType, 1000, 700);
+	//makeRandomJumpingBot(game, botSpriteType, 100, 1000);
+	//makeRandomJumpingBot(game, botSpriteType, 300, 1000);	
+	//makeRandomJumpingBot(game, botSpriteType, 500, 1000);
+	//makeRandomJumpingBot(game, botSpriteType, 100, 1400);
+	//makeRandomJumpingBot(game, botSpriteType, 400, 1400);	
+	//makeRandomJumpingBot(game, botSpriteType, 700, 1400);
+
+	//// AND THEN A BUNCH LINED UP NEAR THE LEVEL EXIT
+	//for (int i = 0; i < 14; i++)
+	//	makeRandomJumpingBot(game, botSpriteType, 1700.0f + (i*100.0f), 1300.0f);
 
 }
 
@@ -444,4 +496,15 @@ void BugginOutDataLoader::initViewport(GameGUI *gui, map<wstring,wstring> *prope
 	viewport->setViewportOffsetX(viewportOffsetX);
 	viewport->setViewportOffsetY(viewportOffsetY);
 	viewport->setToggleOffsetY(toggleOffsetY);
+}
+
+void BugginOutDataLoader::spawnBots(Game *game, int type)
+{
+	SpriteManager *spriteManager = game->getGSM()->getSpriteManager();
+	AnimatedSpriteType *botSpriteType = spriteManager->getSpriteType(type);
+
+	makeRandomJumpingBot(game, botSpriteType, 1024, 1600);
+	makeRandomJumpingBot(game, botSpriteType, 2432, 1600 - 64);
+	makeRandomJumpingBot(game, botSpriteType, 2176, 256 - 64);
+	makeRandomJumpingBot(game, botSpriteType, 1664, 832 - 64);
 }

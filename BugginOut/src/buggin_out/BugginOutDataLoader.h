@@ -53,4 +53,7 @@ public:
 	void initSplashScreen(Game *game, GameGUI *gui,	DirectXTextureManager *guiTextureManager);
 	void initMainMenu(GameGUI *gui,	DirectXTextureManager *guiTextureManager);
 	void initInGameGUI(GameGUI *gui, DirectXTextureManager *guiTextureManager);
+
+	void loadNextLevel(Game *game, wstring nextLevel);
+	void spawnBots(Game *game, int type);
 };

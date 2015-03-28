@@ -56,4 +56,5 @@ public:
 	Bot*				removeBot(Bot *botToRemove);
 	void				unloadSprites();
 	void				update(Game *game);
+	bool				isLevelCleared(Game *game);
 };

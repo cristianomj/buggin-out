@@ -15,6 +15,7 @@
 #include "sssf\gsm\physics\Collision.h"
 #include "sssf\gsm\physics\CollidableObject.h"
 #include "sssf\gsm\physics\CollisionListener.h"
+#include "sssf\gsm\ai\Bot.h"
 #include "sssf\gsm\world\World.h"
 #include "sssf\gsm\world\TiledLayer.h"
 #include "sssf\gsm\world\Tile.h"
@@ -48,6 +49,7 @@ public:
 	// FROM THE CENTER, AND WHILE WE DO SORT IT, WE DON'T SEARCH
 	// IT FOR SINGLE ELEMENTS
 	list<Collision*> activeCollisions;
+	list<Bot*> toRemove;
 
 	// SWEEP AND PRUNE STUFF
 	map<unsigned int, vector<CollidableObject*>*> sortedSweptShapes;

@@ -164,6 +164,7 @@ void GameStateManager::loadLevel(Game *game, unsigned int initLevel)
 		if (currentLevel != NO_LEVEL_LOADED)
 			unloadCurrentLevel();
 		currentLevel = initLevel;
+		game->setCurrentLevelFileName(levelNames[initLevel]);
 		wstring fileToLoad = levelFileNamesWithRelativePath[currentLevel];
 		GameDataLoader *dataLoader = game->getDataLoader();
 		dataLoader->loadWorld(game, fileToLoad);
@@ -228,4 +229,21 @@ void GameStateManager::update(Game *game)
 	{
 		physics.update(game);
 	}
+}
+
+void GameStateManager::loadNextLevel(Game *game)
+{
+	Viewport *viewport = game->getGUI()->getViewport();
+	viewport->setViewportX(0);
+	viewport->setViewportY(0);
+
+	unloadCurrentLevel();
+	world.unloadWorld();
+
+	currentLevel = 0;
+	game->setCurrentLevelFileName(levelNames[0]);
+	wstring fileToLoad = levelFileNamesWithRelativePath[currentLevel];
+	GameDataLoader *dataLoader = game->getDataLoader();
+	
+	dataLoader->loadNextLevel(game, fileToLoad);
 }

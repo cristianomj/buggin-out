@@ -77,14 +77,19 @@ void BugginOutKeyEventHandler::handleKeyEvents(Game *game)
 		{
 			if (player->wasOnTileLastFrame())
 			{
+				player->toggleJumping();
 				vY = JUMP_SPEED;
 			}
 			else
 			{
-				cout << "WHAT HAPPENED?";
+				if (player->isJumping())
+				{
+					player->toggleJumping();
+					vY = JUMP_SPEED;
+				}
 			}
 		}
-		if (input->isKeyDownForFirstTime(P_KEY))
+ 		if (input->isKeyDownForFirstTime(P_KEY))
 		{
 			gsm->getPhysics()->togglePhysics();
 		}

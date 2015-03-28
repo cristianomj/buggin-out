@@ -25,6 +25,9 @@ protected:
 
 	// TRANSPARENCY/OPACITY
 	int alpha;
+	bool jumping;
+	int health;
+	int clock;
 
 	// THE "current" STATE DICTATES WHICH ANIMATION SEQUENCE 
 	// IS CURRENTLY IN USE, BUT IT MAP ALSO BE USED TO HELP
@@ -42,13 +45,18 @@ protected:
 public:
 	// INLINED ACCESSOR METHODS
 	int					getAlpha()			{ return alpha;				}
+	bool				isJumping()			{ return jumping;			}	
 	wstring				getCurrentState()	{ return currentState;		}
 	unsigned int		getFrameIndex()		{ return frameIndex;		}
 	AnimatedSpriteType*	getSpriteType()		{ return spriteType;		}
+	int					getHealth()			{ return health;			}
+	int					getClock()			{ return clock;             }
 
 	// INLINED MUTATOR METHODS
 	void setAlpha(int initAlpha)
 	{	alpha = initAlpha;						}
+	void toggleJumping()
+	{	jumping = !jumping;						}	
 	void setSpriteType(AnimatedSpriteType *initSpriteType)
 	{	spriteType = initSpriteType;			}
 
@@ -61,4 +69,6 @@ public:
 	void updateSprite();
 	void affixTightAABBBoundingVolume();
 	void correctToTightBoundingVolume();
+	void processDamage();
+	void processHelp();
 };

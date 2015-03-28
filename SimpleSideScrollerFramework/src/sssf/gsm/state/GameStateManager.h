@@ -95,4 +95,5 @@ public:
 	void			loadLevel(Game *game, wstring levelName);
 	void			unloadCurrentLevel();
 	void			update(Game *game);
+	void			loadNextLevel(Game *game);
 };

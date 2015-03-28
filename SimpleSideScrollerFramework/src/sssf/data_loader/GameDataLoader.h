@@ -49,4 +49,6 @@ public:
 	virtual void loadGame(Game *game, wstring gameInitFile)=0;
 	virtual void loadGUI(Game *game, wstring guiInitFile)=0;
 	virtual void loadWorld(Game *game, wstring levelInitFile)=0;
+	virtual void loadNextLevel(Game *game, wstring nextLevel)=0;
+	virtual void spawnBots(Game *game, int type) = 0;
 };
